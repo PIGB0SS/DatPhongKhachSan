@@ -15,5 +15,9 @@ namespace Presentation.Controllers
             var hotels = _db.Hotels.ToList();
             return View(hotels);
         }
+        public IActionResult Create()
+        {
+            return View();
+        }
     }
 }
