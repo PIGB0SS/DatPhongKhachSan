@@ -33,6 +33,9 @@
                     <th>
                         Số Người Tối Đa
                     </th>
+                    <th>
+                        Hành Động
+                    </th>
                 </tr>
             </thead>
             <tbody>
@@ -50,6 +53,20 @@
                         </td>
                         <td>
                             @hotel.Occupancy
+                        </td>
+                        <td class="w-100 btn-group p-1" role="group">
+                            <a class="btn btn-primary"
+                               asp-controller="Hotel"
+                               asp-action="Update"
+                               asp-route-hotelid="@hotel.Id">
+                                <i class="bi bi-pencil-square"></i> Sửa
+                            </a>
+                            <a class="btn btn-danger"
+                               asp-controller="Hotel"
+                               asp-action="Delete"
+                               asp-route-hotelid="@hotel.Id">
+                                <i class="bi bi-trash"></i> Xóa
+                            </a>
                         </td>
                     </tr>
                 }
