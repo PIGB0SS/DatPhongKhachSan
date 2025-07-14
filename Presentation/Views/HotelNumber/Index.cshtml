@@ -1,11 +1,10 @@
-﻿@model IEnumerable<Domain.Entities.Hotel>
-
+﻿@model IEnumerable<Domain.Entities.HotelNumber>
 <div class="w-100 card border-0 p-5">
     <div class="card-header bg-primary bg-gradient m-lg-0 py-3">
         <div class="row">
             <div class="col-12 text-center">
                 <h2 class="text-white py-2">
-                    Danh Sách Khách Sạn
+                    Danh Sách Phòng Khách Sạn
                 </h2>
             </div>
         </div>
@@ -13,8 +12,8 @@
     <div class="card-body border py-4 ">
         <div class="row pb-4">
             <div class="col-6 offset-6 text-end">
-                <a class="btn btn-primary" asp-area="" asp-controller="Hotel" asp-action="Create">
-                    <i class="bi bi-plus-circle"></i> Thêm mới thông tin khách sạn
+                <a class="btn btn-primary" asp-area="" asp-controller="HotelNumber" asp-action="Create">
+                    <i class="bi bi-plus-circle"></i> Thêm mới phòng khách sạn
                 </a>
             </div>
         </div>
@@ -22,16 +21,13 @@
             <thead>
                 <tr>
                     <th>
-                        Tên Khách Sạn
+                        HotelId
                     </th>
                     <th>
-                        Giá Phòng
+                        Hotel_Number
                     </th>
                     <th>
-                        Số Mét Vuông
-                    </th>
-                    <th>
-                        Số Người Tối Đa
+                        SpecialDetails
                     </th>
                     <th>
                         Chức năng
@@ -39,32 +35,30 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var hotel in Model)
+                @foreach (var item in Model)
                 {
                     <tr>
                         <td>
-                            @hotel.Name
+                            @item.HotelId
                         </td>
                         <td>
-                            @hotel.Price
+                            @item.Hotel_Number
                         </td>
                         <td>
-                            @hotel.SquareMeter
+                            @item.SpecialDetails
                         </td>
-                        <td>
-                            @hotel.Occupancy
-                        </td>
+
                         <td class="w-100 btn-group p-1" role="group">
                             <a class="btn btn-primary"
-                               asp-controller="Hotel"
+                               asp-controller="HotelNumber"
                                asp-action="Update"
-                               asp-route-hotelid="@hotel.Id">
+                               asp-route-hotelid="@item.HotelId">
                                 <i class="bi bi-pencil-square"></i> Sửa
                             </a>
                             <a class="btn btn-danger"
-                               asp-controller="Hotel"
+                               asp-controller="HotelNumber"
                                asp-action="Delete"
-                               asp-route-hotelid="@hotel.Id">
+                               asp-route-hotelid="@item.HotelId">
                                 <i class="bi bi-trash"></i> Xóa
                             </a>
                         </td>
