@@ -1,0 +1,57 @@
+﻿@model Domain.Entities.HotelNumber
+@{
+    IEnumerable<SelectListItem>? hotels = ViewData["Hotels"] as IEnumerable<SelectListItem>;
+
+}
+<div class="w-100 card border-0 p-5">
+    <div class="card-header bg-primary bg-gradient m-lg-0 py-3">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h2> Thêm mới phòng Khách Sạn</h2>
+            </div>
+        </div>
+    </div>
+    <div class="card-body border py-4 ">
+        <form method="post" class="row">
+            <div class="p-3">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-floating py-2 col-12">
+                    <input asp-for="Hotel_Number" class="form-control border shadow" />
+                    <label asp-for="Hotel_Number" class="ms-2">Hotel_Number</label>
+                    <span asp-validation-for="Hotel_Number" class="text-danger"></span>
+                </div>
+                <div class="form-floating py-2 col-12">
+                    @* <input asp-for="HotelId" class="form-control border shadow" /> *@
+                    <select asp-for="HotelId" class="form-select border shadow" asp-items="hotels">
+                        <option value="">-- Chọn Khách Sạn --</option>
+                    </select>
+                    <label asp-for="HotelId" class="ms-2">HotelId</label>
+                    <span asp-validation-for="HotelId" class="text-danger"></span>
+                </div>
+                <div class="form-floating py-2 col-12">
+                    <input asp-for="SpecialDetails" class="form-control border shadow" />
+                    <label asp-for="SpecialDetails" class="ms-2">SpecialDetails</label>
+                    <span asp-validation-for="SpecialDetails" class="text-danger"></span>
+                </div>
+                <div class="row pt-2">
+                    <div class="col-6 col-md-3">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-check-circle"></i> Thêm
+                        </button>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <a asp-controller="HotelNumber" asp-action="Index" class="btn btn-danger w-100">
+                            <i class="bi bi-check-circle"></i> Thoát
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        <partial name="_ValidationScriptsPartial" />
+    }
+}
