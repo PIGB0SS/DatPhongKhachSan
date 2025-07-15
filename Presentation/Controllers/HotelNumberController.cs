@@ -2,6 +2,7 @@
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace Presentation.Controllers
 {
@@ -14,7 +15,7 @@ namespace Presentation.Controllers
         }
         public IActionResult Index()
         {
-            var hotelNumbers = _db.HotelNumbers.ToList();
+            var hotelNumbers = _db.HotelNumbers.Include(h=>h.Hotel).ToList();
             return View(hotelNumbers);
         }
         public IActionResult Create()
@@ -32,6 +33,14 @@ namespace Presentation.Controllers
         {
             if (ModelState.IsValid)
             {
+                // Check if the hotel number already exists
+                bool existed = _db.HotelNumbers.Any(hn => hn.Hotel_Number == hotelNumber.Hotel_Number);
+                if (existed)
+                {
+                    ModelState.AddModelError("Hotel_Number", "Số phòng đã tồn tại.");
+                    TempData["error"] = "Số phòng đã tồn tại.";
+                    return View(hotelNumber);
+                }
                 _db.HotelNumbers.Add(hotelNumber);
                 _db.SaveChanges();
                 TempData["success"] = "Đã thêm thành công";
