@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using Appplication.Common.Interfaces;
+using Domain.Entities;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -8,14 +9,14 @@ namespace Presentation.Controllers
 {
     public class HotelNumberController : Controller
     {
-        private readonly ApplicationDbContext _db;
-        public HotelNumberController(ApplicationDbContext db)
+        private readonly IUnitOfWork _unitOfWork;
+        public HotelNumberController(IUnitOfWork unitOfWork)
         {
-            _db = db;
+            _unitOfWork = unitOfWork;
         }
         public IActionResult Index()
         {
-            var hotelNumbers = _db.HotelNumbers.Include(h => h.Hotel).ToList();
+            var hotelNumbers = _unitOfWork.HotelNumber.GetAll(include: "Hotel");
             return View(hotelNumbers);
         }
         public IActionResult Create()
@@ -29,15 +30,15 @@ namespace Presentation.Controllers
             if (ModelState.IsValid)
             {
                 // Check if the hotel number already exists
-                bool existed = _db.HotelNumbers.Any(hn => hn.Hotel_Number == hotelNumber.Hotel_Number);
+                bool existed = _unitOfWork.HotelNumber.Get(h => h.Hotel_Number == hotelNumber.Hotel_Number) is not null;
                 if (existed)
                 {
                     ModelState.AddModelError("Hotel_Number", "Số phòng đã tồn tại.");
                     TempData["error"] = "Số phòng đã tồn tại.";
                     return View(hotelNumber);
                 }
-                _db.HotelNumbers.Add(hotelNumber);
-                _db.SaveChanges();
+                _unitOfWork.HotelNumber.Add(hotelNumber);
+                _unitOfWork.Save();
                 TempData["success"] = "Đã thêm thành công";
                 return RedirectToAction("Index", "HotelNumber");
             }
@@ -46,7 +47,7 @@ namespace Presentation.Controllers
         public IActionResult Update(int hotel_Number)
         {
 
-            var hotelNumber = _db.HotelNumbers.FirstOrDefault(h => h.Hotel_Number == hotel_Number);
+            var hotelNumber = _unitOfWork.HotelNumber.Get(h => h.Hotel_Number == hotel_Number);
             if (hotelNumber == null)
             {
                 return RedirectToAction("NotFound", "Home");
@@ -60,8 +61,8 @@ namespace Presentation.Controllers
             LoadAllHotels();
             if (ModelState.IsValid)
             {
-                _db.HotelNumbers.Update(hotelNumber);
-                _db.SaveChanges();
+                _unitOfWork.HotelNumber.Update(hotelNumber);
+                _unitOfWork.Save();
                 TempData["success"] = "Đã cập nhật thành công";
                 return RedirectToAction("Index", "HotelNumber");
             }
@@ -70,7 +71,7 @@ namespace Presentation.Controllers
         public IActionResult Delete(int hotel_Number)
         {
             LoadAllHotels();
-            var hotelNumber = _db.HotelNumbers.FirstOrDefault(h => h.Hotel_Number == hotel_Number);
+            var hotelNumber = _unitOfWork.HotelNumber.Get(h => h.Hotel_Number == hotel_Number);
             if (hotelNumber == null)
             {
                 return RedirectToAction("NotFound", "Home");
@@ -86,14 +87,14 @@ namespace Presentation.Controllers
                 LoadAllHotels();
                 return View(hotelNumber);
             }
-            _db.HotelNumbers.Remove(hotelNumber);
-            _db.SaveChanges();
+            _unitOfWork.HotelNumber.Remove(hotelNumber);
+            _unitOfWork.Save();
             TempData["success"] = "Đã xóa thành công";
             return RedirectToAction("Index", "HotelNumber");
         }
         public void LoadAllHotels()
         {
-            IEnumerable<SelectListItem> hotels = _db.Hotels.Select(h => new SelectListItem
+            IEnumerable<SelectListItem> hotels = _unitOfWork.Hotel.GetAll().Select(h => new SelectListItem
             {
                 Text = h.Name,
                 Value = h.Id.ToString()

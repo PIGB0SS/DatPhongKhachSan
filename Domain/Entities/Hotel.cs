@@ -1,5 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Entities
 {
@@ -17,6 +19,9 @@ namespace Domain.Entities
         public int SquareMeter { get; set; }
         //number of beds
         public int Occupancy { get; set; }
+        [NotMapped]
+        public IFormFile? Image { get; set; }
+
         [Display(Name="Hình Ảnh")]
         public string? ImageUrl { get; set; }
         public DateTime? CreateDate { get; set; }

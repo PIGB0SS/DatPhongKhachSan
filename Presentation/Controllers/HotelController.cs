@@ -1,19 +1,21 @@
-﻿using Domain.Entities;
-using Infrastructure.Data;
+﻿using Appplication.Common.Interfaces;
+using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.Controllers
 {
     public class HotelController : Controller
     {
-        private readonly ApplicationDbContext _db;
-        public HotelController(ApplicationDbContext db)
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        public HotelController(IUnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment)
         {
-            _db = db;
-        } 
+            _unitOfWork = unitOfWork;
+            _webHostEnvironment = webHostEnvironment;
+        }
         public IActionResult Index()
         {
-            var hotels = _db.Hotels.ToList();
+            var hotels = _unitOfWork.Hotel.GetAll();
             return View(hotels);
         }
         public IActionResult Create()
@@ -25,16 +27,31 @@ namespace Presentation.Controllers
         {
             if (ModelState.IsValid)
             {
-                _db.Hotels.Add(hotel);
-                _db.SaveChanges();
+                if (hotel.Image != null)
+                {
+                    string wwwRootPath = _webHostEnvironment.WebRootPath;
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(hotel.Image.FileName);
+                    string path = Path.Combine(wwwRootPath, @"img/Hotel", fileName);
+                    using (var fileStream = new FileStream(path, FileMode.Create))
+                    {
+                        hotel.Image.CopyTo(fileStream);
+                    }
+                    hotel.ImageUrl = @"img/Hotel" + fileName;
+                }
+                else
+                {
+                    hotel.ImageUrl = "default.jpg"; // Set a default image if none is provided
+                }
+                _unitOfWork.Hotel.Add(hotel);
+                _unitOfWork.Hotel.Save();
                 TempData["success"] = "Đã thêm thành công";
-                return RedirectToAction("Index","Hotel");
+                return RedirectToAction("Index", "Hotel");
             }
             return View(hotel);
         }
         public IActionResult Update(int hotelid)
         {
-            var hotel = _db.Hotels.FirstOrDefault(h=>h.Id==hotelid);
+            var hotel = _unitOfWork.Hotel.Get(h => h.Id == hotelid);
             if (hotel == null)
             {
                 return RedirectToAction("NotFound", "Home");
@@ -46,8 +63,8 @@ namespace Presentation.Controllers
         {
             if (ModelState.IsValid)
             {
-                _db.Hotels.Update(hotel);
-                _db.SaveChanges();
+                _unitOfWork.Hotel.Update(hotel);
+                _unitOfWork.Hotel.Save();
                 TempData["success"] = "Đã cập nhật thành công";
                 return RedirectToAction("Index", "Hotel");
             }
@@ -55,7 +72,7 @@ namespace Presentation.Controllers
         }
         public IActionResult Delete(int hotelid)
         {
-            var hotel = _db.Hotels.FirstOrDefault(h => h.Id == hotelid);
+            var hotel = _unitOfWork.Hotel.Get(h => h.Id == hotelid);
             if (hotel == null)
             {
                 return RedirectToAction("NotFound", "Home");
@@ -65,13 +82,13 @@ namespace Presentation.Controllers
         [HttpPost]
         public IActionResult Delete(Hotel hotel)
         {
-            if(ModelState.IsValid == false)
+            if (ModelState.IsValid == false)
             {
                 TempData["error"] = "Không xóa được thông tin";
                 return View(hotel);
             }
-            _db.Hotels.Remove(hotel);
-            _db.SaveChanges();
+            _unitOfWork.Hotel.Remove(hotel);
+            _unitOfWork.Hotel.Save();
             TempData["success"] = "Đã xóa thành công";
             return RedirectToAction("Index", "Hotel");
         }
