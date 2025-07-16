@@ -15,17 +15,12 @@ namespace Presentation.Controllers
         }
         public IActionResult Index()
         {
-            var hotelNumbers = _db.HotelNumbers.Include(h=>h.Hotel).ToList();
+            var hotelNumbers = _db.HotelNumbers.Include(h => h.Hotel).ToList();
             return View(hotelNumbers);
         }
         public IActionResult Create()
         {
-            IEnumerable<SelectListItem> hotels = _db.Hotels.Select(h => new SelectListItem
-            {
-                Text = h.Name,
-                Value = h.Id.ToString()
-            }).ToList();
-            ViewData["Hotels"] = hotels; 
+            LoadAllHotels();
             return View();
         }
         [HttpPost]
@@ -48,48 +43,62 @@ namespace Presentation.Controllers
             }
             return View(hotelNumber);
         }
-        public IActionResult Update(int hotelid)
+        public IActionResult Update(int hotel_Number)
         {
-            var hotel = _db.Hotels.FirstOrDefault(h => h.Id == hotelid);
-            if (hotel == null)
+
+            var hotelNumber = _db.HotelNumbers.FirstOrDefault(h => h.Hotel_Number == hotel_Number);
+            if (hotelNumber == null)
             {
                 return RedirectToAction("NotFound", "Home");
             }
-            return View(hotel);
+            LoadAllHotels();
+            return View(hotelNumber);
         }
         [HttpPost]
-        public IActionResult Update(Hotel hotel)
+        public IActionResult Update(HotelNumber hotelNumber)
         {
+            LoadAllHotels();
             if (ModelState.IsValid)
             {
-                _db.Hotels.Update(hotel);
+                _db.HotelNumbers.Update(hotelNumber);
                 _db.SaveChanges();
                 TempData["success"] = "Đã cập nhật thành công";
-                return RedirectToAction("Index", "Hotel");
+                return RedirectToAction("Index", "HotelNumber");
             }
-            return View(hotel);
+            return View(hotelNumber);
         }
-        public IActionResult Delete(int hotelid)
+        public IActionResult Delete(int hotel_Number)
         {
-            var hotel = _db.Hotels.FirstOrDefault(h => h.Id == hotelid);
-            if (hotel == null)
+            LoadAllHotels();
+            var hotelNumber = _db.HotelNumbers.FirstOrDefault(h => h.Hotel_Number == hotel_Number);
+            if (hotelNumber == null)
             {
                 return RedirectToAction("NotFound", "Home");
             }
-            return View(hotel);
+            return View(hotelNumber);
         }
         [HttpPost]
-        public IActionResult Delete(Hotel hotel)
+        public IActionResult Delete(HotelNumber hotelNumber)
         {
             if (ModelState.IsValid == false)
             {
                 TempData["error"] = "Không xóa được thông tin";
-                return View(hotel);
+                LoadAllHotels();
+                return View(hotelNumber);
             }
-            _db.Hotels.Remove(hotel);
+            _db.HotelNumbers.Remove(hotelNumber);
             _db.SaveChanges();
             TempData["success"] = "Đã xóa thành công";
-            return RedirectToAction("Index", "Hotel");
+            return RedirectToAction("Index", "HotelNumber");
+        }
+        public void LoadAllHotels()
+        {
+            IEnumerable<SelectListItem> hotels = _db.Hotels.Select(h => new SelectListItem
+            {
+                Text = h.Name,
+                Value = h.Id.ToString()
+            }).ToList();
+            ViewData["Hotels"] = hotels;
         }
     }
 }
